@@ -123,10 +123,22 @@ SELECT
     TRIM(sls_prd_key),
     CASE WHEN TRIM(sls_cust_id) = '' OR TRIM(sls_cust_id) = '0' THEN NULL ELSE TRIM(sls_cust_id)::INT END,
     CASE 
-        WHEN TRIM(sls_order_dt) = '' OR TRIM(sls_order_dt) = '0' THEN NULL
-        WHEN TRIM(sls_order_dt) ~ '^\d{8}$' THEN TO_DATE(TRIM(sls_order_dt),'YYYYMMDD')
-        ELSE TO_DATE(TRIM(sls_order_dt),'YYYY-MM-DD')
-    END,
+            WHEN TRIM(sls_order_dt) = '' OR TRIM(sls_order_dt) = '0' THEN NULL
+            WHEN TRIM(sls_order_dt) ~ '^\d{8}$' THEN 
+                 CASE 
+                     WHEN TO_DATE(TRIM(sls_order_dt),'YYYYMMDD') BETWEEN '1900-01-01' AND '2100-12-31'
+                     THEN TO_DATE(TRIM(sls_order_dt),'YYYYMMDD')
+                     ELSE NULL
+                 END
+            WHEN TRIM(sls_order_dt) ~ '^\d{4}-\d{2}-\d{2}$' THEN 
+                 CASE 
+                     WHEN TO_DATE(TRIM(sls_order_dt),'YYYY-MM-DD') BETWEEN '1900-01-01' AND '2100-12-31'
+                     THEN TO_DATE(TRIM(sls_order_dt),'YYYY-MM-DD')
+                     ELSE NULL
+                 END
+            ELSE NULL
+        END
+        ,
     CASE 
         WHEN TRIM(sls_ship_dt) = '' OR TRIM(sls_ship_dt) = '0' THEN NULL
         WHEN TRIM(sls_ship_dt) ~ '^\d{8}$' THEN TO_DATE(TRIM(sls_ship_dt),'YYYYMMDD')
